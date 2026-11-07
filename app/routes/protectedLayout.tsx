@@ -13,6 +13,6 @@ export default function ProtectedLayout() {
             <Outlet />
         </div>
     ) : (
-        <Navigate to="/signup" replace />
+        <Navigate to="/login" replace />
     );
 }
