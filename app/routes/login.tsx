@@ -82,7 +82,7 @@ export default function Login() {
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>
                                 <div className="grid gap-1">
-                                    <Input type="email" id="email" placeholder="demo@email.com" className={emailError ? "border-destructive" : ""} onChange={(e) => setEmail(e.target.value)} />
+                                    <Input type="email" id="email" placeholder="demo@email.com" className={emailError ? "border-destructive" : ""} onChange={(e) => setEmail(e.target.value)} autoFocus />
                                     {emailError && <p className="text-destructive text-xs">{emailError}</p>}
                                 </div>
                             </div>
