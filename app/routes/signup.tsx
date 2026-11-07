@@ -7,16 +7,22 @@ import { Label } from "~/components/ui/label";
 import { FaGoogle } from "react-icons/fa";
 import getAuthErrorMessage from "~/service/auth/error";
 import { createUser, googleLogin } from "~/service/auth/auth";
+import { EyeIcon, EyeOff } from "lucide-react";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [authError, setAuthError] = useState("");
     const [googleLoading, setGoogleLoading] = useState(false);
     const navigate = useNavigate();
+
+    function passwordShow() {
+        setShowPassword((prev) => !prev);
+    }
 
     const handleFormSubmition = async (e: SubmitEvent) => {
         e.preventDefault();
@@ -82,8 +88,11 @@ export default function Signup() {
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
-                                <div>
-                                    <Input type="password" id="password" placeholder="At least 6 characters long" className={passwordError ? "border-destructive" : ""} onChange={(e) => setPassword(e.target.value)} />
+                                <div className="grid gap-1 relative">
+                                    <Input type={showPassword ? "text" : "password"} id="password" placeholder="At least 6 characters long" className={passwordError ? "border-destructive" : ""} onChange={(e) => setPassword(e.target.value)} />
+                                    <Button variant="link" onClick={passwordShow} className="absolute right-1">
+                                        {showPassword ? <EyeIcon /> : <EyeOff />}
+                                    </Button>
                                     {passwordError && <p className="text-destructive">{passwordError}</p>}
                                 </div>
                             </div>
