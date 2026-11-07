@@ -1,10 +1,12 @@
 import { useState, type SubmitEvent } from "react";
-import { Form } from "react-router";
+import { Form, Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { FaGoogle } from "react-icons/fa";
+import getAuthErrorMessage from "~/service/auth/error";
+import { createUser, googleLogin } from "~/service/auth/auth";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
@@ -12,9 +14,16 @@ export default function Signup() {
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [loading, setLoading] = useState(false);
-    const handleFormSubmition = (e: SubmitEvent) => {
+    const [authError, setAuthError] = useState("");
+    const [googleLoading, setGoogleLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleFormSubmition = async (e: SubmitEvent) => {
         e.preventDefault();
         let hasError = false;
+
+        setEmailError("");
+        setPasswordError("");
 
         if (!email.trim()) {
             setEmailError("Email is required");
@@ -30,10 +39,28 @@ export default function Signup() {
         }
 
         if (hasError) return;
+        try {
+            setLoading(true);
+            await createUser(email, password);
+            navigate("/", { replace: true });
+        } catch (err) {
+            setAuthError(getAuthErrorMessage(err));
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        console.log("Form submitting");
-        setLoading(true);
-        return;
+    const handleGoogleLogin = async () => {
+        setAuthError("");
+        try {
+            setGoogleLoading(true);
+            await googleLogin();
+            navigate("/", { replace: true });
+        } catch (err) {
+            setAuthError(getAuthErrorMessage(err));
+        } finally {
+            setGoogleLoading(false);
+        }
     };
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -43,29 +70,35 @@ export default function Signup() {
                     <CardDescription>Sign up to view all the blogs</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {authError && <p className="text-destructive text-center mb-4">{authError}</p>}
                     <Form id="signupForm" onSubmit={handleFormSubmition}>
                         <div className="flex flex-col gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>
-                                <Input type="email" id="email" placeholder="demo@email.com" onChange={(e) => setEmail(e.target.value)} />
-                                {emailError && <p className="text-destructive">{emailError}</p>}
+                                <div>
+                                    <Input type="email" id="email" placeholder="demo@email.com" className={emailError ? "border-destructive" : ""} onChange={(e) => setEmail(e.target.value)} />
+                                    {emailError && <p className="text-destructive">{emailError}</p>}
+                                </div>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
-                                <Input type="password" id="password" placeholder="At least 6 characters long" onChange={(e) => setPassword(e.target.value)} />
-                                {passwordError && <p className="text-destructive">{passwordError}</p>}
+                                <div>
+                                    <Input type="password" id="password" placeholder="At least 6 characters long" className={passwordError ? "border-destructive" : ""} onChange={(e) => setPassword(e.target.value)} />
+                                    {passwordError && <p className="text-destructive">{passwordError}</p>}
+                                </div>
                             </div>
                         </div>
                     </Form>
                 </CardContent>
                 <CardFooter className="flex-col gap-4">
                     <Button type="submit" size="lg" className="w-full" form="signupForm" disabled={loading}>
-                        Sign in
+                        {loading ? "Signing in..." : "Sign in"}
                     </Button>
-                    <Button variant="outline" size="lg" className="w-full">
+                    <Button variant="outline" size="lg" className="w-full" disabled={googleLoading} onClick={handleGoogleLogin}>
                         <FaGoogle />
-                        Google
+                        {googleLoading ? "Connecting to google" : "Continue with Google"}
                     </Button>
+                    <p>Already have an account? <Link to="/login" className="text-blue-600">Login</Link></p>
                 </CardFooter>
             </Card>
         </div>

@@ -1,6 +1,6 @@
 import type { FirebaseError } from "firebase/app";
 
-export function getAuthErrorMessage(error: unknown): string {
+export default function getAuthErrorMessage(error: unknown): string {
     if (!error) return "";
 
     const firebaseError = error as FirebaseError;
