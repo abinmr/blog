@@ -1,17 +1,23 @@
 import { useState, type SubmitEvent } from "react";
-import { Form, Link } from "react-router";
+import { Form, Link, useNavigate } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import { useAuth } from "~/context/AuthContext";
+import { createBlog } from "~/service/blog/blog";
 
 export default function CreateBlog() {
     const [title, setTitle] = useState("");
     const [titleError, setTitleError] = useState("");
     const [body, setBody] = useState("");
     const [bodyError, setBodyError] = useState("");
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const { currentUser } = useAuth();
 
-    const handleSubmit = (e: SubmitEvent) => {
+    const handleSubmit = async (e: SubmitEvent) => {
         e.preventDefault();
 
         setTitleError("");
@@ -26,7 +32,21 @@ export default function CreateBlog() {
         }
 
         if (hasError) return;
-    }
+        if (!currentUser) {
+            setError("Please login first");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await createBlog(currentUser, title, body);
+            navigate("/", { replace: true });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
     return (
         <div className="max-w-4xl mx-auto">
             <div className="border rounded-lg shadow-md mt-20 p-8">
@@ -35,11 +55,12 @@ export default function CreateBlog() {
                         <h1 className="font-medium text-xl">Create new Blog Post</h1>
                         <p className="text-black/50">Fill in the title and body below to publish new post.</p>
                     </div>
+                    {error && <p className="text-destructive">{error}</p>}
                     <div className="flex flex-col gap-4 mt-8">
                         <div className="grid gap-2">
                             <Label htmlFor="title">Title</Label>
                             <div className="grid gap-1">
-                                <Input id="title" placeholder="Enter your blog title..." className={titleError ? "border-destructive" : ""} onChange={(e) => setTitle(e.target.value)} />
+                                <Input id="title" placeholder="Enter your blog title..." className={titleError ? "border-destructive" : ""} onChange={(e) => setTitle(e.target.value)} autoFocus />
                                 {titleError && <p className="text-destructive text-xs">{titleError}</p>}
                             </div>
                         </div>
@@ -55,7 +76,9 @@ export default function CreateBlog() {
                         <Link to="/">
                             <Button variant="outline">Cancel</Button>
                         </Link>
-                        <Button type="submit">Create Blog</Button>
+                        <Button type="submit" disabled={loading}>
+                            {loading ? "Creating blog..." : "Create blog"}
+                        </Button>
                     </div>
                 </Form>
             </div>
