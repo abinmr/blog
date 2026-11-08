@@ -7,5 +7,6 @@ export default [
     ]),
     layout("routes/protectedLayout.tsx", [
         index("routes/home.tsx"),
+        route("blog/create", "routes/createBlog.tsx")
     ])
 ] satisfies RouteConfig;
