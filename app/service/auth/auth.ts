@@ -1,8 +1,24 @@
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
-import { auth, googleProvider } from "~/config/firebase";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, signOut, type User } from "firebase/auth";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { auth, db, googleProvider } from "~/config/firebase";
+
+async function createUserProfile(user: User) {
+    const userRef = doc(db, "users", user.uid);
+    await setDoc(
+        userRef,
+        {
+            email: user.email,
+            name: user.displayName || "",
+            createdAt: serverTimestamp(),
+        },
+        { merge: true },
+    );
+}
 
 export async function createUser(email: string, password: string) {
-    return createUserWithEmailAndPassword(auth, email, password);
+    const userCredentials = await createUserWithEmailAndPassword(auth, email, password);
+    await createUserProfile(userCredentials.user);
+    return userCredentials;
 }
 
 export async function loginUser(email: string, password: string) {

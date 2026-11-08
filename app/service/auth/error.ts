@@ -8,11 +8,8 @@ export default function getAuthErrorMessage(error: unknown): string {
 
     switch (code) {
         case "auth/invalid-credential":
-            return "Invalid credentials";
-
         case "auth/user-not-found":
-            return "user not found";
-
+            return "User not found."
         case "auth/wrong-password":
             return "Invalid email or password. Please check your credentials.";
 
