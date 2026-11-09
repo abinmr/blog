@@ -25,10 +25,12 @@ export default function CreateBlog() {
         let hasError = false;
         if (!title.trim()) {
             setTitleError("Please enter a title for your blog post.");
+            hasError = true;
         }
 
         if (!body.trim()) {
             setBodyError("Please enter the body content for your blog post. ");
+            hasError = true;
         }
 
         if (hasError) return;

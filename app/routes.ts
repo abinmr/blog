@@ -8,6 +8,6 @@ export default [
     layout("routes/protectedLayout.tsx", [
         index("routes/home.tsx"),
         route("/blog/create", "routes/createBlog.tsx"),
-        route("/blog/edit", "routes/editBlog.tsx"),
+        route("/blog/edit/:blogId", "routes/editBlog.tsx"),
     ])
 ] satisfies RouteConfig;
