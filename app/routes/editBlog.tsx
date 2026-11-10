@@ -13,6 +13,7 @@ export default function CreateBlog() {
     const [titleError, setTitleError] = useState("");
     const [body, setBody] = useState("");
     const [bodyError, setBodyError] = useState("");
+    const [error, setError] = useState("");
     const { blogId } = useParams();
     const { currentUser } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -61,8 +62,9 @@ export default function CreateBlog() {
             setIsUpdating(true);
             await updateBlog(currentUser, blogId, title, body);
             navigate("/", { replace: true });
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
+            setError(err.message || "Failed to create blog");
         } finally {
             setIsUpdating(false);
         }
@@ -73,11 +75,12 @@ export default function CreateBlog() {
         <div className="max-w-4xl mx-auto">
             <div className="border rounded-lg shadow-md mt-20 p-8">
                 <Form onSubmit={handleSubmit}>
-                    <div className="text-center">
+                    <div className="text-center mb-8">
                         <h1 className="font-medium text-xl">Edit your Blog Post</h1>
                         <p className="text-black/50">Fill in the title and body below to publish new post.</p>
                     </div>
-                    <div className="flex flex-col gap-4 mt-8">
+                    {error && <p className="text-destructive text-center">{error}</p>}
+                    <div className="flex flex-col gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="title">Title</Label>
                             <div className="grid gap-1">

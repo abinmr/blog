@@ -6,13 +6,7 @@ import Spinner from "./Spinner";
 import ShowBlog from "./ShowBlog";
 import { Button } from "./ui/button";
 import { Link } from "react-router";
-
-interface Blog {
-    id: string;
-    title: string;
-    body: string;
-    createdAt: Date;
-}
+import type { Blog } from "../../types";
 
 export default function HomePage() {
     const [blogs, setBlogs] = useState<Blog[]>([]);
@@ -24,7 +18,6 @@ export default function HomePage() {
 
             try {
                 const result = await getAllBlogs(currentUser);
-                console.log("Results", result);
                 setBlogs(result);
             } catch (err) {
                 console.error("Failed to fetch data", err);
@@ -33,7 +26,7 @@ export default function HomePage() {
             }
         }
         blogs();
-    }, [currentUser, blogs]);
+    }, [currentUser]);
 
     if (loading) return <Spinner />;
     if (blogs.length === 0) return <EmptyBlog />;
@@ -41,6 +34,7 @@ export default function HomePage() {
         if (!currentUser) return;
         try {
             await deleteBlog(currentUser, blogId);
+            setBlogs((prev) => prev.filter((blog) => blog.id !== blogId));
         } catch (err) {
             console.error("Error deleting blog", err);
         }

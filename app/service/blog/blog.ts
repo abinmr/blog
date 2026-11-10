@@ -1,8 +1,15 @@
 import type { User } from "firebase/auth";
-import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDoc, getDocs, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore";
 import { db } from "~/config/firebase";
+import type { Blog } from "../../../types";
 
 export async function createBlog(user: User, title: string, body: string) {
+    const blogCol = collection(db, "users", user.uid, "blogs");
+    const q = query(blogCol, where("title", "==", title));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+        throw new Error("A blog with title already exists");
+    }
     const blogRef = doc(collection(db, "users", user.uid, "blogs"));
     await setDoc(blogRef, {
         id: blogRef.id,
@@ -13,11 +20,11 @@ export async function createBlog(user: User, title: string, body: string) {
     });
 }
 
-export async function getAllBlogs(user: User) {
+export async function getAllBlogs(user: User): Promise<Blog[]> {
     const blogRef = collection(db, "users", user.uid, "blogs");
     const q = query(blogRef, orderBy("createdAt", "desc"));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Blog);
 }
 
 export async function getBlogById(user: User, blogId: string) {
