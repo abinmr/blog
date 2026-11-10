@@ -25,10 +25,12 @@ export default function CreateBlog() {
         let hasError = false;
         if (!title.trim()) {
             setTitleError("Please enter a title for your blog post.");
+            hasError = true;
         }
 
         if (!body.trim()) {
             setBodyError("Please enter the body content for your blog post. ");
+            hasError = true;
         }
 
         if (hasError) return;
@@ -41,8 +43,9 @@ export default function CreateBlog() {
             setLoading(true);
             await createBlog(currentUser, title, body);
             navigate("/", { replace: true });
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
+            setError(err.message || "Failed to create blog");
         } finally {
             setLoading(false);
         }
@@ -51,12 +54,12 @@ export default function CreateBlog() {
         <div className="max-w-4xl mx-auto">
             <div className="border rounded-lg shadow-md mt-20 p-8">
                 <Form onSubmit={handleSubmit}>
-                    <div className="text-center">
+                    <div className="text-center mb-8">
                         <h1 className="font-medium text-xl">Create new Blog Post</h1>
                         <p className="text-black/50">Fill in the title and body below to publish new post.</p>
                     </div>
-                    {error && <p className="text-destructive">{error}</p>}
-                    <div className="flex flex-col gap-4 mt-8">
+                    {error && <p className="text-destructive text-center">{error}</p>}
+                    <div className="flex flex-col gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="title">Title</Label>
                             <div className="grid gap-1">
