@@ -9,5 +9,6 @@ export default [
         index("routes/home.tsx"),
         route("/blog/create", "routes/createBlog.tsx"),
         route("/blog/edit/:blogId", "routes/editBlog.tsx"),
-    ])
+    ]),
+    route("*", "routes/Error.tsx"),
 ] satisfies RouteConfig;
